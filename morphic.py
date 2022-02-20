@@ -2349,11 +2349,11 @@ class Hand(Morph):
         pass
 
     def process_mouse_event(self, event):
-        if event.type == 4:
+        if event.type == pygame.MOUSEMOTION:
             self.process_mouse_move(event)
-        elif event.type == 5:
+        elif event.type == pygame.MOUSEBUTTONDOWN:
             self.process_mouse_down(event)
-        elif event.type == 6:
+        elif event.type == pygame.MOUSEBUTTONUP:
             self.process_mouse_up(event)
 
     def morph_at_pointer(self):
@@ -2590,7 +2590,7 @@ class World(Frame):
         self.keyboard_receiver = None
         self.text_cursor = None
         self.bounds = Point(0, 0).corner(Point(x, y))
-        self.color = pygame.Color(130, 130, 130)
+        self.color = pygame.Color(255, 130, 130)
         self.open_menu = None
         self.is_visible = True
         self.is_draggable = False
@@ -2812,9 +2812,18 @@ class World(Frame):
         self.keyboard_receiver = None
 
     def about(self):
-        self.inform("morphic.py\n\n\
-a lively GUI for Python\ninspired by Squeak\nbased on Pygame\n\
-" + version + "\n\nwritten by Jens Mönig\njens@moenig.org")
+        self.inform(f'''morphic.py
+
+a lively GUI for Python
+inspired by Squeak
+based on Pygame
+{version}
+
+written by Jens Mönig
+jens@moenig.org
+
+PyGame: {pygame.version.ver}
+SDL: {pygame.version.SDL}''')
 
     #World utilities:
 
@@ -2832,11 +2841,12 @@ a lively GUI for Python\ninspired by Squeak\nbased on Pygame\n\
     def step_frame(self):
         event = pygame.event.poll()
         if event.type != 0:
-            if event.type in range(4, 7):
+            print(event, event.type)
+            if event.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
                 self.hand.process_mouse_event(event)
             elif event.type == 2 and self.keyboard_receiver != None:
                 self.keyboard_receiver.process_keyboard_event(event)
-            elif event.type == 12:
+            elif event.type == pygame.QUIT:
                 return "quit"
             elif event.type == 16:
                 self.change_extent_to(Point(event.size[0],
@@ -2871,4 +2881,7 @@ a lively GUI for Python\ninspired by Squeak\nbased on Pygame\n\
             self.wait_for_next_frame()
 
 world = World()
+
+#world.user_create_new_morph()
+
 world.loop()
