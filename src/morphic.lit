@@ -14,6 +14,8 @@ This file is a reorganisation of Jens' source code, using the [lit tool](https:/
 --- morphic.py
 @{License}
 
+@{Open Issues}
+
 @{Preamble}
 
 @{Point}
@@ -27,54 +29,6 @@ This file is a reorganisation of Jens' source code, using the [lit tool](https:/
 @{Morphs}
 
 @{World creation and loop}
----
-
-@s License
-
-Jens has published the source code of morphic.py under a permissove open source license: 
-
---- License
-#
-#    morphic.py
-#
-#    a tree-based GUI for Python
-#    inspired by Squeak
-#
-#    written by Jens Mönig
-#    jens@moenig.org
-#
-#    version 2009-Nov-06
-#
-#    Copyright (C) 2009 by Jens Mönig
-#
-#    Permission is hereby granted, free of charge, to any person
-#    obtaining a copy of this software and associated documentation
-#    files (the "Software"), to deal in the Software without
-#    restriction, including without limitation the rights to use, copy,
-#    modify, merge, publish, distribute, sublicense, and/or sell copies
-#    of the Software, and to permit persons to whom the Software is
-#    furnished to do so, subject to the following conditions:
-#
-#    The above copyright notice and this permission notice shall be
-#    included in all copies or substantial portions of the Software.
-#
-#    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-#    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-#    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-#    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-#    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-#    DEALINGS IN THE SOFTWARE.
-#
-#    yet to implement:
-#    - make World customizable before opening it
-#    - scroll bars
-#    - tool tips
-#    - skinnables
-#    - turtle trails
-#    - better string editing
-#    - multi-line edits
 ---
 
 @s Preamble
@@ -855,6 +809,75 @@ class Morph(Node):
     def mouse_move(pos):
         pass
 
+    @{Morph menus}
+
+    #Morph utilities:
+
+    def hint(self, msg):
+        m = Menu()
+        m.title = msg.__str__()
+        m.is_draggable = True
+        m.popup_centered_at_hand()
+
+    def inform(self, msg):
+        m = Menu()
+        m.title = msg.__str__()
+        m.add_item("Ok")
+        m.is_draggable = True
+        m.popup_centered_at_hand()
+
+    def ask_yes_no(self, msg):
+        m = SelectionMenu()
+        m.title = msg.__str__()
+        m.add_item("Yes", True)
+        m.add_item("No", False)
+        m.is_draggable = True
+        return m.get_user_choice()
+
+    def prompt(self, msg, default='', width=100):
+        m = SelectionMenu()
+        m.title = msg.__str__()
+        m.add_entry(default, width)
+        m.add_line(2)
+        m.add_item("Ok", True)
+        m.add_item("Cancel", False)
+        m.is_draggable = True
+        if m.get_user_choice():
+            return m.get_entries()[0]
+        else:
+            return None
+
+    def pick_color(self, msg, default=pygame.Color(0,0,0,)):
+        m = SelectionMenu()
+        m.title = msg.__str__()
+        m.add_color_picker(default)
+        m.add_line(2)
+        m.add_item("Ok", True)
+        m.add_item("Cancel", False)
+        m.is_draggable = True
+        if m.get_user_choice():
+            return m.get_color_picks()[0]
+        else:
+            return None
+---
+
+##### Morph menus
+
+Morphs have a context menu which in user mode is empty. In developer mode, however, this menu gives useful options during development.
+
+The developers' menu provides the following options:
+
+* pick up
+* attach
+* duplicate
+* transparency
+* resize
+* adjust position
+* choose color
+* hide
+* delete
+
+--- Morph menus
     #Morph menus:
 
     def context_menu(self):
@@ -938,55 +961,6 @@ class Morph(Node):
         while pygame.mouse.get_pressed() == (0,0,0):
             world.do_one_cycle()
         return world.hand.morph_at_pointer()        
-
-    #Morph utilities:
-
-    def hint(self, msg):
-        m = Menu()
-        m.title = msg.__str__()
-        m.is_draggable = True
-        m.popup_centered_at_hand()
-
-    def inform(self, msg):
-        m = Menu()
-        m.title = msg.__str__()
-        m.add_item("Ok")
-        m.is_draggable = True
-        m.popup_centered_at_hand()
-
-    def ask_yes_no(self, msg):
-        m = SelectionMenu()
-        m.title = msg.__str__()
-        m.add_item("Yes", True)
-        m.add_item("No", False)
-        m.is_draggable = True
-        return m.get_user_choice()
-
-    def prompt(self, msg, default='', width=100):
-        m = SelectionMenu()
-        m.title = msg.__str__()
-        m.add_entry(default, width)
-        m.add_line(2)
-        m.add_item("Ok", True)
-        m.add_item("Cancel", False)
-        m.is_draggable = True
-        if m.get_user_choice():
-            return m.get_entries()[0]
-        else:
-            return None
-
-    def pick_color(self, msg, default=pygame.Color(0,0,0,)):
-        m = SelectionMenu()
-        m.title = msg.__str__()
-        m.add_color_picker(default)
-        m.add_line(2)
-        m.add_item("Ok", True)
-        m.add_item("Cancel", False)
-        m.is_draggable = True
-        if m.get_user_choice():
-            return m.get_color_picks()[0]
-        else:
-            return None
 ---
 
 @s Morphs
@@ -2961,4 +2935,59 @@ class World(Frame):
 world = World()
 
 world.loop()
+---
+
+@s License
+
+Jens has published the source code of morphic.py under a permissove open source license: 
+
+--- License
+#
+#    morphic.py
+#
+#    a tree-based GUI for Python
+#    inspired by Squeak
+#
+#    written by Jens Mönig
+#    jens@moenig.org
+#
+#    version 2009-Nov-06
+#
+#    Copyright (C) 2009 by Jens Mönig
+#
+#    Permission is hereby granted, free of charge, to any person
+#    obtaining a copy of this software and associated documentation
+#    files (the "Software"), to deal in the Software without
+#    restriction, including without limitation the rights to use, copy,
+#    modify, merge, publish, distribute, sublicense, and/or sell copies
+#    of the Software, and to permit persons to whom the Software is
+#    furnished to do so, subject to the following conditions:
+#
+#    The above copyright notice and this permission notice shall be
+#    included in all copies or substantial portions of the Software.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+#    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+#    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+#    DEALINGS IN THE SOFTWARE.
+---
+
+@s Open Issues
+
+There are still things that need implementing. Source of inspiration might be the [Javascript variant morphic.js](https://github.com/jmoenig/morphic.js).
+
+--- Open Issues
+#
+#    yet to implement:
+#    - make World customizable before opening it
+#    - scroll bars
+#    - tool tips
+#    - skinnables
+#    - turtle trails
+#    - better string editing
+#    - multi-line edits
 ---
