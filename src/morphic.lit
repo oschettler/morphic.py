@@ -11,7 +11,7 @@ While the Javascript version enables Snap to run in the browser, my interest are
 
 This file is a reorganisation of Jens' source code, using the [lit tool](https://zyedidia.github.io/literate/index.html) for literate programming.
 
---- morphic-lit.py
+--- morphic.py
 @{License}
 
 @{Preamble}
