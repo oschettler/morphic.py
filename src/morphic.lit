@@ -42,6 +42,7 @@ import math
 pygame.init()
 version = '2009-Nov-06'
 TRANSPARENT = pygame.Color(1, 1, 1)
+FONTSIZE=12
 ---
 
 @s Point
@@ -1636,7 +1637,7 @@ class Menu(RoundedBox):
             self.label.delete()
         text = Text(self.title,
                     fontname="verdana",
-                    fontsize=10,
+                    fontsize=FONTSIZE,
                     bold=True,
                     italic=False,
                     alignment='center')
@@ -1798,7 +1799,7 @@ class Trigger(Morph):
                  action=None,
                  label=None,
                  fontname="verdana",
-                 fontsize=10,
+                 fontsize=FONTSIZE,
                  bold=False,
                  italic=False):
         self.name = "trigger"
@@ -1980,7 +1981,7 @@ class String(Morph):
     def __init__(self,
                  text,
                  fontname="verdana",
-                 fontsize=12,
+                 fontsize=FONTSIZE,
                  bold=False,
                  italic=False):
         self.text = text
@@ -2189,7 +2190,7 @@ class Text(Morph):
     def __init__(self,
                  text,
                  fontname="verdana",
-                 fontsize=12,
+                 fontsize=FONTSIZE,
                  bold=False,
                  italic=False,
                  alignment='left',
@@ -2585,7 +2586,7 @@ class StringField(Frame, Widget):
     def __init__(self, default='',
                  minwidth=100,
                  fontname="verdana",
-                 fontsize=12,
+                 fontsize=FONTSIZE,
                  bold=False,
                  italic=False):
         self.default = default
