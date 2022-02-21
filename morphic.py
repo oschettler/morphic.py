@@ -2816,11 +2816,14 @@ class World(Frame):
 
 a lively GUI for Python
 inspired by Squeak
-based on Pygame
+based on PyGame
 {version}
 
 written by Jens Mönig
 jens@moenig.org
+
+fixes for PyGame 2 by Olav Schettler
+olav@schettler.net
 
 PyGame: {pygame.version.ver}
 SDL: {pygame.version.SDL}''')
@@ -2841,14 +2844,13 @@ SDL: {pygame.version.SDL}''')
     def step_frame(self):
         event = pygame.event.poll()
         if event.type != 0:
-            print(event, event.type)
             if event.type in (pygame.MOUSEMOTION, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
                 self.hand.process_mouse_event(event)
-            elif event.type == 2 and self.keyboard_receiver != None:
+            elif event.type == pygame.KEYDOWN and self.keyboard_receiver != None:
                 self.keyboard_receiver.process_keyboard_event(event)
             elif event.type == pygame.QUIT:
                 return "quit"
-            elif event.type == 16:
+            elif event.type == pygame.VIDEORESIZE:
                 self.change_extent_to(Point(event.size[0],
                                             event.size[1]))
         super(World, self).step_frame()
