@@ -52,15 +52,24 @@ Points are the basic building block for all geometry in Morphic.
 --- Point
 class Point:
 
+---
+
+A point is initialized with its x and y coordinates. Its string representation shows these coordinates.
+
+--- Point +=
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
     def __repr__(self):
         return self.x.__str__() + '@' + self.y.__str__()
+---
 
-    #Point comparison:
+##### Point comparison
 
+Some magic methods allow to use the standard relational operators ==, !=, <, >, <=, >= with points.
+
+--- Point +=
     def __eq__(self, other):
         if isinstance(other, Point):
             return self.x == other.x and self.y == other.y
@@ -88,23 +97,31 @@ class Point:
         if isinstance(other, Point):
             return self.x >= other.x and self.y >= other.y
         return NotImplemented
+---
 
+Also, `round()`, `min()`, and `max()` may be used on points. 
+
+--- Point +=
     def __round__(self):
         return Point(round(self.x), round(self.y))
 
     def max(self, other):
         return Point(max(self.x, other.x), max(self.y, other.y))
-    
+
     def min(self, other):
         return Point(min(self.x, other.x), min(self.y, other.y))
+---
 
-    #Point arithmetic:
+##### Point arithmetic
 
+Another set of magical methods allows to use arithmetic operators +, -, *, /, //, `abs()`, and negation on points. 
+
+--- Point +=
     def __add__(self, other):
         if isinstance(other, Point):
             return Point(self.x + other.x, self.y + other.y)
         return Point(self.x + other, self.y + other)
-        
+
     def __sub__(self, other):
         if isinstance(other, Point):
             return Point(self.x - other.x, self.y - other.y)
@@ -130,18 +147,40 @@ class Point:
 
     def __neg__(self):
         return Point(-self.x, -self.y)
+---
 
-    #Point functions:
+##### Point functions
 
+Finally, some higher level functions on points.
+
+The first is the dot product ([Wikipedia](https://en.wikipedia.org/wiki/Dot_product)). The geometric definiton of a dot product states that 
+
+    a ⋅ b = ‖ a ‖ ‖ b ‖ cos ⁡ θ
+
+In particular, if the vectors a and b are orthogonal, their dot product is 0. At the other extreme, if they are codirectional, then the angle between them is zero with cos ⁡0 = 1 and 
+
+    a ⋅ b = ‖ a ‖ ‖ b ‖ 
+
+The resulting value is a scalar.
+
+--- Point +=
     def dot_product(self, other):
         return self.x * other.x + self.y * other.y
-    
+---
+
+The cross product ([Wikipedia](https://en.wikipedia.org/wiki/Cross_product)) of two linearly independent vectors a and b, a × b (read "a cross b"), is a vector that is perpendicular to both a and b.
+
+--- Point +=
     def cross_product(self, other):
         return self.x * other.y - self.y * other.x
+---
 
+--- Point +=
     def distance_to(self, other):
         return (other - self).r()
+---
 
+--- Point +=
     def rotate(self, direction, center):
         "direction must be 'right', 'left' or 'pi'"
         offset = self - center
@@ -153,7 +192,9 @@ class Point:
             return center - offset
         else:
             return NotImplemented
-    
+---
+
+--- Point +=
     def flip(self, direction, center):
         "direction must be 'vertical' or 'horizontal'"
 
@@ -163,31 +204,45 @@ class Point:
             return Point(center.x * 2 - self.x, self.y)
         else:
             return NotImplemented
+---
 
-    #Point polar coordinates:
+##### Point polar coordinates
 
+--- Point +=
     def r(self):
         return math.sqrt(self.dot_product(self))
+---
 
-    #Point transforming:
+##### Point transforming
 
+--- Point +=
     def scale_by(self, scalePoint):
         return Point(scalePoint.x * self.x, scalePoint.y * self.y)
+---
 
+--- Point +=
     def translate_by(self, deltaPoint):
         return Point(deltaPoint.x + self.x, deltaPoint.y + self.y)
+---
 
-    #Point converting:
+##### Point converting
 
+--- Point +=
     def as_list(self):
         return [self.x, self.y]
+---
 
+--- Point +=
     def corner(self, cornerPoint):
         return Rectangle(self, cornerPoint)
+---
 
+--- Point +=
     def rectangle(self, aPoint):
         return Rectangle(self.min(aPoint), self.max(aPoint))
+---
 
+--- Point +=
     def extent(self, extentPoint):
         return Rectangle(self, self + extentPoint)
 ---
@@ -2933,9 +2988,9 @@ class World(Frame):
 @s World creation and loop
 
 --- World creation and loop
-world = World()
-
-world.loop()
+if __name__ == '__main__':
+    world = World()
+    world.loop()
 ---
 
 @s License
