@@ -416,9 +416,8 @@ class Node(object):
 
 class Morph(Node):
 
-    def __init__(self, world):
+    def __init__(self):
         super(Morph, self).__init__()
-        self.world = world
         self.bounds = Point(0, 0).corner(Point(50,40))
         self.color = pygame.Color(80, 80, 80)
         self.alpha = 255
@@ -690,7 +689,6 @@ class Morph(Node):
     def world(self):
         if isinstance(self.root(), World):
             return self.root()
-        print("ROOT", self.root())
 
     def add(self, morph):
         parent = morph.parent
@@ -734,8 +732,9 @@ class Morph(Node):
         "default is False - change for subclasses"
         return False
 
-    def pick_up(self):
-        world = self.world()
+    def pick_up(self, world=None):
+        if not world:
+            world = self.world()
         self.set_position(world.hand.position() - (self.extent() // 2))
         world.hand.grab(self)
 
@@ -2706,7 +2705,7 @@ class World(Frame):
         menu.popup_at_hand()
 
     def user_create_rectangle(self):
-        Morph().pick_up()
+        Morph().pick_up(self)
 
     def user_create_ellipse(self):
         ellipse = Ellipse()
