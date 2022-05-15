@@ -416,8 +416,9 @@ class Node(object):
 
 class Morph(Node):
 
-    def __init__(self):
+    def __init__(self, world):
         super(Morph, self).__init__()
+        self.world = world
         self.bounds = Point(0, 0).corner(Point(50,40))
         self.color = pygame.Color(80, 80, 80)
         self.alpha = 255
@@ -428,7 +429,7 @@ class Morph(Node):
         self.last_time = pygame.time.get_ticks()
       
     def __repr__(self):
-        return self.__class__.__name__
+        return self.__class__.__name__ + str(self.bounds)
 
     def delete(self):
         if self.parent != None:
@@ -689,6 +690,7 @@ class Morph(Node):
     def world(self):
         if isinstance(self.root(), World):
             return self.root()
+        print("ROOT", self.root())
 
     def add(self, morph):
         parent = morph.parent
@@ -733,6 +735,7 @@ class Morph(Node):
         return False
 
     def pick_up(self):
+        world = self.world()
         self.set_position(world.hand.position() - (self.extent() // 2))
         world.hand.grab(self)
 
@@ -792,6 +795,7 @@ class Morph(Node):
     #Morph menus:
 
     def context_menu(self):
+        world = self.world()
         if world.is_dev_mode:
             return self.developers_menu()
         else:
@@ -837,6 +841,7 @@ class Morph(Node):
         handle.delete()
 
     def is_resizing(self, handle):
+        world = self.world()
         if world.hand.is_dragging(handle):
             return True
         elif pygame.mouse.get_pressed() != (1,0,0):
@@ -853,6 +858,7 @@ class Morph(Node):
         self.changed()
 
     def adjust_position(self):
+        world = self.world()
         self.add_shadow()
         p = pygame.mouse.get_pos()
         pos = Point(p[0], p[1])
@@ -868,6 +874,7 @@ class Morph(Node):
         self.changed()
 
     def choose_morph(self):
+        world = self.world()
         self.hint('click on a morph\nto select it')
         while pygame.mouse.get_pressed() == (0,0,0):
             world.do_one_cycle()
@@ -1674,13 +1681,16 @@ class Menu(RoundedBox):
                 return
 
     def popup_at_hand(self):
+        world = self.target
         self.popup(world, world.hand.position())
 
     def popup_centered_at_hand(self):
+        world = self.target
         self.draw_new()
         self.popup(world, (world.hand.position() - (self.extent() // 2)))
 
     def popup_centered_in_world(self):
+        world = self.target
         self.draw_new()
         self.popup(world, (world.center() - (self.extent() // 2)))
 
@@ -2383,7 +2393,7 @@ class Hand(Morph):
 
     def grab(self, morph):
         if self.children == []:
-            world.stop_editing()
+            self.world.stop_editing()
             morph.add_shadow()
             self.add(morph)
             self.changed()
@@ -2413,14 +2423,14 @@ class Hand(Morph):
                 if isinstance(m, Menu) or isinstance(m, Widget):
                     is_menu_click = True
             if not is_menu_click:
-                if isinstance(world.open_menu, SelectionMenu):
-                    world.open_menu.choice = False
-                elif isinstance(world.open_menu, Menu):
-                    world.open_menu.delete()
+                if isinstance(self.world.open_menu, SelectionMenu):
+                    self.world.open_menu.choice = False
+                elif isinstance(self.world.open_menu, Menu):
+                    self.world.open_menu.delete()
 
-            if world.text_cursor != None:
-                if morph is not world.text_cursor.target:
-                    world.stop_editing()
+            if self.world.text_cursor != None:
+                if morph is not self.world.text_cursor.target:
+                    self.world.stop_editing()
 
             self.morph_to_grab = morph.root_for_grab()
             while not morph.handles_mouse_click():
@@ -2882,8 +2892,8 @@ SDL: {pygame.version.SDL}''')
         if self.fps > 0:
             self.wait_for_next_frame()
 
-world = World()
 
-#world.user_create_new_morph()
-
-world.loop()
+if __name__ == '__main__':
+    world = World()
+    #world.user_create_new_morph()
+    world.loop()
