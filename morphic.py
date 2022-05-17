@@ -1679,17 +1679,14 @@ class Menu(RoundedBox):
                 item.text.edit()
                 return
 
-    def popup_at_hand(self):
-        world = self.target
+    def popup_at_hand(self, world):
         self.popup(world, world.hand.position())
 
     def popup_centered_at_hand(self):
-        world = self.target
         self.draw_new()
         self.popup(world, (world.hand.position() - (self.extent() // 2)))
 
     def popup_centered_in_world(self):
-        world = self.target
         self.draw_new()
         self.popup(world, (world.center() - (self.extent() // 2)))
 
@@ -2459,7 +2456,7 @@ class Hand(Morph):
             if event.button == 3 and not is_menu_click:
                 menu = morph.context_menu()
                 if menu != None:
-                    menu.popup_at_hand()
+                    menu.popup_at_hand(self.world)
             
             while not morph.handles_mouse_click():
                 morph = morph.parent
@@ -2702,7 +2699,7 @@ class World(Frame):
         menu.add_item("palette...", 'user_create_color_palette')
         menu.add_item("slider...", 'user_create_slider')
         
-        menu.popup_at_hand()
+        menu.popup_at_hand(self)
 
     def user_create_rectangle(self):
         Morph().pick_up(self)
@@ -2711,19 +2708,19 @@ class World(Frame):
         ellipse = Ellipse()
         ellipse.color = pygame.Color(40,40,40)
         ellipse.draw_new()
-        ellipse.pick_up()
+        ellipse.pick_up(self)
 
     def user_create_circle_box(self):
         box = CircleBox()
         box.color = pygame.Color(120,120,120)
         box.draw_new()
-        box.pick_up()
+        box.pick_up(self)
 
     def user_create_rounded_box(self):
         box = RoundedBox()
         box.color = pygame.Color(110,110,110)
         box.draw_new()
-        box.pick_up()
+        box.pick_up(self)
 
     def user_create_polygon(self):
         self.hint('left click to add vertices\nmiddle click to complete')
@@ -2731,9 +2728,9 @@ class World(Frame):
         vertices = []
         while pygame.mouse.get_pressed() != (0,1,0):
             while pygame.mouse.get_pressed() == (0,0,0):
-                world.do_one_cycle()
+                self.do_one_cycle()
             mousepos = pygame.mouse.get_pos()
-            world.do_one_cycle()
+            self.do_one_cycle()
             if mousepos != oldpos:
                 vertices.append(Point(mousepos[0], mousepos[1]))
                 oldpos = mousepos
@@ -2749,33 +2746,33 @@ class World(Frame):
     def user_create_string(self):
         string = String("Hello, World!")
         string.is_editable = True
-        string.pick_up()
+        string.pick_up(self)
 
     def user_create_text(self):
         text = Text("Ich weiß nicht, was soll es bedeuten, das ich so traurig bin, ein Märchen aus uralten Zeiten, das kommt mir nicht aus dem Sinn. Die Luft ist kühl und es dunkelt, und ruhig fließt der Rhein; der Gipfel des Berges funkelt im Abendsonnenschein. Die schönste Jungfrau sitzet dort oben wunderbar, ihr gold'nes Geschmeide blitzet, sie kämmt ihr goldenes Haar, sie kämmt es mit goldenem Kamme, und singt ein Lied dabei; das hat eine wundersame, gewalt'ge Melodei. Den Schiffer im kleinen Schiffe, ergreift es mit wildem Weh; er schaut nicht die Felsenriffe, er schaut nur hinauf in die Höh'. Ich glaube, die Wellen verschlingen am Ende Schiffer und Kahn, und das hat mit ihrem Singen, die Loreley getan. ")
         text.max_width = 400
         text.draw_new()
-        text.pick_up()
+        text.pick_up(self)
 
     def user_create_bouncer(self):
         bouncer = Bouncer()
         bouncer.color = pygame.Color(30,30,30)
         bouncer.draw_new()
         bouncer.is_stopped = True
-        bouncer.pick_up()
+        bouncer.pick_up(self)
 
     def user_create_frame(self):
         frame = Frame()
         frame.color = pygame.Color(100,100,100)
         frame.set_extent(Point(150,100))
         frame.draw_new()
-        frame.pick_up()
+        frame.pick_up(self)
 
     def user_create_color_palette(self):
-        ColorPalette().pick_up()
+        ColorPalette().pick_up(self)
 
     def user_create_slider(self):
-        Slider().pick_up()
+        Slider().pick_up(self)
 
     def stop_all_bouncers(self):
         for m in self.all_children():
