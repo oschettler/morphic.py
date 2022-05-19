@@ -14,10 +14,10 @@ class Card(BaseModel, morphic.Text):
     body = TextField()
     created_at = DateTimeField(default=datetime.datetime.now)
 
-    def __init__(self):
+    def __init__(self, world):
         BaseModel.__init__(self)
         morphic.Text.__init__(
-            self,
+            self, world,
             "Ich bin ein Text"
         )
 
@@ -34,7 +34,7 @@ class Board(morphic.World):
 
     
     def create_card(self):
-        card = Card().pick_up(self)
+        card = Card(self).pick_up()
 
 
 def run():
