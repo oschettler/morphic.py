@@ -1,5 +1,10 @@
 # Dev Log
 
+## 2022-05 28
+
+This was much too much effort. Going back to the original, I now accept `world` as a module global.
+
+
 ## 2022-05-15
 
 When importing morphic.py as a module in `card.py`, it doesn't work because `world` is used as a global variable in many places.

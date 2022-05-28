@@ -16,13 +16,17 @@ class Card(BaseModel, morphic.Text):
 
     def __init__(self):
         BaseModel.__init__(self)
-        morphic.Text.__init__(
-            self,
+        morphic.Text.__init__(self
             "Ich bin ein Text"
         )
 
 
 class Board(morphic.World):
+    def __init__(self):
+        super().__init__()
+        morphic.world = self
+
+
     def context_menu(self):
         if self.is_dev_mode:
             menu = super().context_menu()
