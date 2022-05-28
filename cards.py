@@ -16,7 +16,7 @@ class Card(BaseModel, morphic.Text):
 
     def __init__(self):
         BaseModel.__init__(self)
-        morphic.Text.__init__(self
+        morphic.Text.__init__(self,
             "Ich bin ein Text"
         )
 
@@ -38,7 +38,7 @@ class Board(morphic.World):
 
     
     def create_card(self):
-        card = Card().pick_up(self)
+        card = Card().pick_up()
 
 
 def run():
