@@ -650,7 +650,7 @@ class Morph(Node):
         return sha
 
     def shadow(self, offset, alpha):
-        shadow = Shadow()
+        shadow = Shadow(self.world)
         shadow.set_extent(self.full_bounds().extent())
         shadow.draw_new()
         shadow.image = self.shadow_surface(offset, alpha)
@@ -684,9 +684,6 @@ class Morph(Node):
         self.world.broken.append(copy.copy(self.full_bounds()))
 
     #Morph accessing - structure:
-
-    def world(self):
-        return self.world
 
     def add(self, morph):
         parent = morph.parent
@@ -796,7 +793,7 @@ class Morph(Node):
             return None
 
     def developers_menu(self):
-        menu = Menu(self, self.__class__.__name__)
+        menu = Menu(target=self, title=self.__class__.__name__)
         menu.add_item("pick up", 'pick_up')
         menu.add_item("attach...", 'choose_parent')
         menu.add_item("duplicate...", 'duplicate')
@@ -874,20 +871,20 @@ class Morph(Node):
     #Morph utilities:
 
     def hint(self, msg):
-        m = Menu(self.world)
+        m = Menu(target=self.world)
         m.title = msg.__str__()
         m.is_draggable = True
         m.popup_centered_at_hand()
 
     def inform(self, msg):
-        m = Menu(self.world)
+        m = Menu(target=self.world)
         m.title = msg.__str__()
         m.add_item("Ok")
         m.is_draggable = True
         m.popup_centered_at_hand()
 
     def ask_yes_no(self, msg):
-        m = SelectionMenu(self.world)
+        m = SelectionMenu(target=self.world)
         m.title = msg.__str__()
         m.add_item("Yes", True)
         m.add_item("No", False)
@@ -895,7 +892,7 @@ class Morph(Node):
         return m.get_user_choice()
 
     def prompt(self, msg, default='', width=100):
-        m = SelectionMenu(self.world)
+        m = SelectionMenu(target=self.world)
         m.title = msg.__str__()
         m.add_entry(default, width)
         m.add_line(2)
@@ -908,7 +905,7 @@ class Morph(Node):
             return None
 
     def pick_color(self, msg, default=pygame.Color(0,0,0,)):
-        m = SelectionMenu(self.world)
+        m = SelectionMenu(target=self.world)
         m.title = msg.__str__()
         m.add_color_picker(default)
         m.add_line(2)
@@ -1199,7 +1196,7 @@ class Polygon(Morph):
         return menu
 
     def user_remove_vertice(self):
-        m = SelectionMenu(self.world)
+        m = SelectionMenu(target=self.world)
         m.title = 'remove:'
         idx = 0
         for v in self.vertices:
@@ -1529,14 +1526,13 @@ class RoundedBox(Morph):
 
 class Menu(RoundedBox):
 
-    def __init__(self, world, target=None, title=None):
-        self.target = target
+    def __init__(self, target, title=None):
+        self.target = target if target else self
+        self.world = self.target.world if self.target.world else self.target
         self.title = title
-        if target == None:
-            self.target = self
         self.items = []
         self.label = None
-        super(Menu, self).__init__(world)
+        super(Menu, self).__init__(target=self.world)
         self.is_draggable = False
 
     def add_item(self, label="close", action='nop'):
@@ -1628,7 +1624,7 @@ class Menu(RoundedBox):
                 item.color = self.bordercolor
                 item.set_height(pair[1])
             else:
-                item = MenuItem(self.target, pair[1], pair[0])
+                item = MenuItem(self.world, self.target, pair[1], pair[0])
             item.set_position(Point(x, y))
             self.add(item)
             y += item.height()
@@ -1658,11 +1654,11 @@ class Menu(RoundedBox):
                     item.text.set_position(
                         item.center() - (item.text.extent() // 2))
 
-    def popup(self, world, pos):
+    def popup(self, pos):
         self.draw_new()
         self.set_position(pos)
         self.add_shadow("shade", Point(2,2), 80)
-        self.keep_within(world)
+        self.keep_within(self.world)
         self.world.add(self)
         self.world.open_menu = self
         self.full_changed()
@@ -1684,8 +1680,8 @@ class Menu(RoundedBox):
 
 class SelectionMenu(Menu):
 
-    def __init__(self, world, target=None, title=None):
-        super(SelectionMenu, self).__init__(world, None, title)
+    def __init__(self, target, title=None):
+        super(SelectionMenu, self).__init__(target, title)
         self.choice = None
 
     def perform(self, item):
@@ -1716,7 +1712,7 @@ class ListMenu(object):
     def build_menus(self):
         self.menus = []
         count = 0
-        sm = SelectionMenu()
+        sm = SelectionMenu(target=self.world)
         if self.label != None:
             sm.title = self.label
             sm.is_draggable = True
@@ -1725,7 +1721,7 @@ class ListMenu(object):
             if count > self.maxitems:
                 self.menus.append(sm)
                 count = 1
-                sm = SelectionMenu()
+                sm = SelectionMenu(target=self.world)
                 sm.add_item("back...", self.menus[len(self.menus) - 1])
                 sm.add_line()
                 if self.label != None:
@@ -1826,7 +1822,7 @@ class MenuItem(Trigger, Widget):
     def create_label(self):
         if self.label != None:
             self.label.delete()
-        self.label = String(self.label_string,
+        self.label = String(self.world, self.label_string,
                                  self.fontname,
                                  self.fontsize,
                                  self.bold,
@@ -1838,7 +1834,7 @@ class MenuItem(Trigger, Widget):
 
     def mouse_click_left(self, pos):
         if isinstance(self.parent, Menu):
-            self.world().open_menu = None
+            self.world.open_menu = None
         self.parent.perform(self)
 
 class Bouncer(Morph):
@@ -2448,7 +2444,7 @@ class Hand(Morph):
             if event.button == 3 and not is_menu_click:
                 menu = morph.context_menu()
                 if menu != None:
-                    menu.popup_at_hand(self.world)
+                    menu.popup_at_hand()
             
             while not morph.handles_mouse_click():
                 morph = morph.parent
@@ -2582,7 +2578,8 @@ class World(Frame):
     "I represent the screen"
                       
     def __init__(self, x=800, y=600):
-        super(World, self).__init__()
+        super(World, self).__init__(self)
+        self.world = None
         self.hand = Hand(self)
         self.keyboard_receiver = None
         self.text_cursor = None
@@ -2600,7 +2597,7 @@ class World(Frame):
         return 'World(' + self.extent().__str__() + ')'
 
     def draw_new(self):
-        icon = Ellipse().image
+        icon = Ellipse(self).image
         pygame.display.set_icon(icon)
         self.image = pygame.display.set_mode(self.extent().as_list(),
                                              pygame.RESIZABLE)
@@ -2654,7 +2651,7 @@ class World(Frame):
     #World menus:
 
     def context_menu(self):
-        menu = Menu(self, self.__class__.__name__)
+        menu = Menu(target=self, title=self.__class__.__name__)
         if self.is_dev_mode:
             menu.add_item("create a morph...", 'user_create_new_morph')
             menu.add_line()
@@ -2675,7 +2672,7 @@ class World(Frame):
         return menu
 
     def user_create_new_morph(self):
-        menu = Menu(self, "create new")
+        menu = Menu(target=self.world, title="create new")
         menu.add_item("rectangle...", 'user_create_rectangle')
         menu.add_item("ellipse...", 'user_create_ellipse')
         menu.add_item("circle box...", 'user_create_circle_box')
@@ -2829,8 +2826,8 @@ SDL: {pygame.version.SDL}''')
 
     def fontname_by_user(self):
         names = sorted(pygame.font.get_fonts())
-        choice = ListMenu(self, names,
-                          'choose font').get_user_choice()
+        choice = ListMenu(target=self, list=names,
+                          title='choose font').get_user_choice()
         if choice == False:
             return None
         else:
